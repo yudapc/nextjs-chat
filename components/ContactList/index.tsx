@@ -1,7 +1,5 @@
 import {
   HamburgerIcon,
-  AddIcon,
-  SearchIcon,
   BellIcon,
   SettingsIcon,
   ChatIcon,
