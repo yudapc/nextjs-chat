@@ -50,9 +50,8 @@ const ContactList = () => {
       </Box>
       <Box pt={20}>
         {contacts.map((contact) => (
-          <Link href="/chat/123">
+          <Link href="/chat/123" key={contact.id}>
             <Box
-              key={contact.id}
               p={4}
               shadow="md"
               display="flex"
