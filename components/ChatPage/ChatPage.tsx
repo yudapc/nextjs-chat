@@ -72,33 +72,40 @@ const ChatPage = () => {
         ref={chatContainerRef}
       >
         {messages.map((msg: IMessage, index: number) => {
+          let justify = "flex-start";
+          let bg = "orange.100";
           if (msg.sender === "me") {
-            return (
-              <Flex key={index} justify="flex-end">
-                <Box
-                  bg="green.100"
-                  color="black"
-                  borderRadius="15px"
-                  p={2}
-                  my={1}
-                  fontSize="sm"
-                >
-                  <ReactMarkdown>{msg.content}</ReactMarkdown>
-                </Box>
-              </Flex>
-            );
+            justify = "flex-end";
+            bg = "green.100";
           }
+
+          // if (msg.sender === "me") {
+          //   return (
+          //     <Flex key={index} justify="flex-end">
+          //       <Box
+          //         bg="green.100"
+          //         color="black"
+          //         borderRadius="15px"
+          //         p={2}
+          //         my={1}
+          //         fontSize="sm"
+          //       >
+          //         <ReactMarkdown>{msg.text}</ReactMarkdown>
+          //       </Box>
+          //     </Flex>
+          //   );
+          // }
           return (
-            <Flex key={index} justify="flex-start">
+            <Flex key={index} justify={justify}>
               <Box
-                bg="orange.100"
+                bg={bg}
                 color="black"
                 borderRadius="15px"
                 p={2}
                 my={1}
                 fontSize="sm"
               >
-                <ReactMarkdown>{msg.content}</ReactMarkdown>
+                <ReactMarkdown>{msg.text}</ReactMarkdown>
               </Box>
             </Flex>
           );

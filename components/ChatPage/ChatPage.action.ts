@@ -15,11 +15,11 @@ export const useChatPageAction = () => {
 
   const handleSendMessage = () => {
     if (currentMessage.trim() === "") return;
-    const newMessage = {
+    const newMessage: IMessage = {
       id: messages.length + 1,
-      content: currentMessage,
-      sender: userId,
-      room,
+      text: currentMessage,
+      sender: String(userId),
+      room: String(room),
     };
     if (socketRef.current) {
       socketRef.current.emit("newMessage", newMessage);
@@ -38,7 +38,7 @@ export const useChatPageAction = () => {
       withCredentials: true,
     });
 
-    socketRef.current?.emit("joinRoom", "ngobrol");
+    socketRef.current?.emit("joinRoom", String(room));
 
     socketRef.current.on("connect", () => {
       console.log("Connected to server");
