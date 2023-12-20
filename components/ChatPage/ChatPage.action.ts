@@ -2,7 +2,7 @@ import { io, Socket } from "socket.io-client";
 import { useEffect, useRef, useState } from "react";
 import { IMessage } from "./ChatPage.types";
 import { useRouter } from "next/router";
-import { getCookie } from "cookies-next";
+import { getCookie, setCookie } from "cookies-next";
 
 export const useChatPageAction = () => {
   const router = useRouter();
@@ -16,10 +16,9 @@ export const useChatPageAction = () => {
   const handleSendMessage = () => {
     if (currentMessage.trim() === "") return;
     const newMessage: IMessage = {
-      id: messages.length + 1,
       text: currentMessage,
       sender: String(userId),
-      room: String(room),
+      roomId: Number(room),
     };
     if (socketRef.current) {
       socketRef.current.emit("newMessage", newMessage);
@@ -33,12 +32,14 @@ export const useChatPageAction = () => {
   }, [userId]);
 
   useEffect(() => {
+    if (!room) return;
     socketRef.current = io(socketIOHost, {
       autoConnect: true,
       withCredentials: true,
     });
 
-    socketRef.current?.emit("joinRoom", String(room));
+    socketRef.current?.emit("joinRoom", Number(room));
+    setCookie("roomId", Number(room));
 
     socketRef.current.on("connect", () => {
       console.log("Connected to server");
@@ -53,7 +54,7 @@ export const useChatPageAction = () => {
         socketRef.current.disconnect();
       }
     };
-  }, []);
+  }, [room]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -63,9 +64,10 @@ export const useChatPageAction = () => {
   };
 
   const listenListMessages = () => {
-    socketRef.current?.emit("messages");
+    const currentRoomId = getCookie("roomId");
+    socketRef.current?.emit("listDataMessages", { roomId: currentRoomId });
 
-    socketRef.current?.on("messages", (messages) => {
+    socketRef.current?.on("dataMessages", (messages) => {
       const messagesMap = messages.map((message: IMessage) => ({
         ...message,
         sender: message.sender === userId ? "me" : message.sender,
