@@ -11,7 +11,7 @@ import {
   Avatar,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import React, { useState, useEffect, useRef, memo } from "react";
+import React, { useEffect, useRef, memo } from "react";
 import { FiSend } from "react-icons/fi";
 import ReactMarkdown from "react-markdown";
 
@@ -21,8 +21,13 @@ import { IMessage } from "./ChatPage.types";
 const ChatPage = () => {
   const router = useRouter();
 
-  const { handleSendMessage, messages, message, setMessage, handleKeyDown } =
-    useChatPageAction();
+  const {
+    handleSendMessage,
+    messages,
+    currentMessage,
+    setCurrentMessage,
+    handleKeyDown,
+  } = useChatPageAction();
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
@@ -102,14 +107,14 @@ const ChatPage = () => {
       <Box p={3} w="full">
         <InputGroup>
           <Textarea
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
+            value={currentMessage}
+            onChange={(e) => setCurrentMessage(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Write a message..."
             w="full"
             minH="40%"
             h="auto"
-            style={{ height: `${message.split("\n").length * 40}px` }}
+            style={{ height: `${currentMessage.split("\n").length * 40}px` }}
           />
           <InputRightElement>
             <IconButton

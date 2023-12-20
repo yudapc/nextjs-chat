@@ -1,31 +1,44 @@
 import { io, Socket } from "socket.io-client";
 import { useEffect, useRef, useState } from "react";
 import { IMessage } from "./ChatPage.types";
+import { useRouter } from "next/router";
+import { getCookie } from "cookies-next";
 
 export const useChatPageAction = () => {
+  const router = useRouter();
+  const userId = getCookie("userId");
+  const { room } = router.query;
+  const socketIOHost: string = "http://localhost:8080";
   const [messages, setMessages] = useState<IMessage[]>([]);
-  const [message, setMessage] = useState<string>("");
+  const [currentMessage, setCurrentMessage] = useState<string>("");
   const socketRef = useRef<Socket | null>(null);
 
   const handleSendMessage = () => {
-    if (message.trim() === "") return;
+    if (currentMessage.trim() === "") return;
     const newMessage = {
       id: messages.length + 1,
-      content: message,
-      sender: "me",
+      content: currentMessage,
+      sender: userId,
+      room,
     };
     if (socketRef.current) {
       socketRef.current.emit("newMessage", newMessage);
-      setMessage("");
+      setCurrentMessage("");
       socketRef.current?.on("dataMessages", (data) => setMessages(data));
     }
   };
 
   useEffect(() => {
-    socketRef.current = io("http://localhost:8080", {
+    if (!userId) router.push("/login");
+  }, [userId]);
+
+  useEffect(() => {
+    socketRef.current = io(socketIOHost, {
       autoConnect: true,
       withCredentials: true,
     });
+
+    socketRef.current?.emit("joinRoom", "ngobrol");
 
     socketRef.current.on("connect", () => {
       console.log("Connected to server");
@@ -49,17 +62,25 @@ export const useChatPageAction = () => {
     }
   };
 
-  socketRef.current?.emit("listDataMessages");
+  const listenListMessages = () => {
+    socketRef.current?.emit("messages");
 
-  socketRef.current?.on("messages", (messages) => {
-    setMessages(messages);
-  });
+    socketRef.current?.on("messages", (messages) => {
+      const messagesMap = messages.map((message: IMessage) => ({
+        ...message,
+        sender: message.sender === userId ? "me" : message.sender,
+      }));
+      setMessages(messagesMap);
+    });
+  };
+
+  listenListMessages();
 
   return {
     handleSendMessage,
     messages,
-    message,
+    currentMessage,
     handleKeyDown,
-    setMessage,
+    setCurrentMessage,
   };
 };
