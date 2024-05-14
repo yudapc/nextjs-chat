@@ -4,13 +4,7 @@ import {
   SettingsIcon,
   ChatIcon,
 } from "@chakra-ui/icons";
-import {
-  Box,
-  VStack,
-  Flex,
-  Heading,
-  IconButton,
-} from "@chakra-ui/react";
+import { Box, VStack, Flex, Heading, IconButton } from "@chakra-ui/react";
 import React from "react";
 import { FiHome } from "react-icons/fi";
 import ListContacts from "./Partials/ListContacts";

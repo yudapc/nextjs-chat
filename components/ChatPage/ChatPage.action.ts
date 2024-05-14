@@ -1,60 +1,59 @@
-import { io, Socket } from "socket.io-client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { getCookie, setCookie } from "cookies-next";
 import { IMessage } from "@/shared/types/message";
+import useWebSocket from "react-use-websocket";
 
 export const useChatPageAction = () => {
   const router = useRouter();
   const userId = getCookie("userId");
   const { room } = router.query;
-  const socketIOHost: string = "http://localhost:8080";
-  const [messages, setMessages] = useState<IMessage[]>([]);
-  const [currentMessage, setCurrentMessage] = useState<string>("");
-  const socketRef = useRef<Socket | null>(null);
 
-  const handleSendMessage = () => {
-    if (currentMessage.trim() === "") return;
-    const newMessage: IMessage = {
-      text: currentMessage,
-      sender: String(userId),
-      roomId: Number(room),
-    };
-    if (socketRef.current) {
-      socketRef.current.emit("newMessage", newMessage);
-      setCurrentMessage("");
-      socketRef.current?.on("dataMessages", (data) => setMessages(data));
+  const [dataMessages, setDataMessages] = useState<IMessage[]>([]);
+  const [textMessage, setTextMessage] = useState<string>("");
+  const { sendJsonMessage, lastMessage, readyState } = useWebSocket(
+    "ws://localhost:8080",
+    {
+      onOpen: () => console.log("WS-Stream connected."),
+      onClose: () => console.log("WS-Stream disconnected."),
+      shouldReconnect: () => true,
+      onMessage: (event: WebSocketEventMap["message"]) =>
+        console.log(event.data),
+    },
+  );
+
+  const handleJoinRoom = () => {
+    if (readyState > 0) {
+      sendJsonMessage({
+        event: "joinRoom",
+        data: {
+          room: String(room),
+        },
+      });
+      setTextMessage("");
     }
   };
 
-  useEffect(() => {
-    if (!userId) router.push("/login");
-  }, [userId]);
+  const handleChangeText = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = event.target.value;
+    setTextMessage(value);
+  };
 
-  useEffect(() => {
-    if (!room) return;
-    socketRef.current = io(socketIOHost, {
-      autoConnect: true,
-      withCredentials: true,
-    });
-
-    socketRef.current?.emit("joinRoom", Number(room));
-    setCookie("roomId", Number(room));
-
-    socketRef.current.on("connect", () => {
-      console.log("Connected to server");
-    });
-
-    socketRef.current.on("disconnect", () => {
-      console.log("Disconnect to server");
-    });
-
-    return () => {
-      if (socketRef.current) {
-        socketRef.current.disconnect();
-      }
-    };
-  }, [room]);
+  const handleSendMessage = () => {
+    if (textMessage.trim() === "" && readyState <= 0) {
+      return;
+    } else {
+      sendJsonMessage({
+        event: "message",
+        data: {
+          text: textMessage,
+          sender: userId,
+          room: String(room),
+        },
+      });
+      setTextMessage("");
+    }
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -63,26 +62,40 @@ export const useChatPageAction = () => {
     }
   };
 
-  const listenListMessages = () => {
-    const currentRoomId = getCookie("roomId");
-    socketRef.current?.emit("listDataMessages", { roomId: currentRoomId });
+  const handleGetData = (lastMessageData: MessageEvent<any>) => {
+    const dataObject = JSON.parse(lastMessageData.data);
 
-    socketRef.current?.on("dataMessages", (messages) => {
-      const messagesMap = messages.map((message: IMessage) => ({
-        ...message,
-        sender: message.sender === userId ? "me" : message.sender,
-      }));
-      setMessages(messagesMap);
-    });
+    setDataMessages([...dataMessages, ...dataObject]);
   };
 
-  listenListMessages();
+  useEffect(() => {
+    if (
+      lastMessage &&
+      lastMessage !== null &&
+      typeof lastMessage?.data === "string"
+    ) {
+      handleGetData(lastMessage);
+    }
+  }, [lastMessage]);
+
+  useEffect(() => {
+    if (!userId) router.push("/login");
+  }, [userId]);
+
+  useEffect(() => {
+    if (!room) {
+      return;
+    } else {
+      handleJoinRoom();
+    }
+  }, [room]);
 
   return {
     handleSendMessage,
-    messages,
-    currentMessage,
+    dataMessages,
+    textMessage,
     handleKeyDown,
-    setCurrentMessage,
+    handleChangeText,
+    userId: String(userId),
   };
 };

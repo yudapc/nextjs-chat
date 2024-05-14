@@ -5,15 +5,16 @@ import { IMessage } from "@/shared/types/message";
 
 interface IProps {
   messages: IMessage[];
+  userId: string;
 }
 
-const ListMessages: FC<IProps> = ({ messages }) => {
+const ListMessages: FC<IProps> = ({ messages, userId }) => {
   return (
     <>
       {messages.map((msg: IMessage, index: number) => {
         let justify = "flex-start";
         let bg = "orange.100";
-        if (msg.sender === "me") {
+        if (msg.sender === userId) {
           justify = "flex-end";
           bg = "green.100";
         }

@@ -11,7 +11,7 @@ import {
   Avatar,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import React, { useEffect, useRef, memo } from "react";
+import React, { useEffect, useRef, memo, useState } from "react";
 import { FiSend } from "react-icons/fi";
 import { useChatPageAction } from "./ChatPage.action";
 import ListMessages from "./Partials/ListMessages";
@@ -21,10 +21,11 @@ const ChatPage = () => {
 
   const {
     handleSendMessage,
-    messages,
-    currentMessage,
-    setCurrentMessage,
+    dataMessages,
+    textMessage,
     handleKeyDown,
+    handleChangeText,
+    userId,
   } = useChatPageAction();
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -34,7 +35,7 @@ const ChatPage = () => {
       chatContainerRef.current.scrollTop =
         chatContainerRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [dataMessages]);
 
   return (
     <VStack align="stretch" h="100vh">
@@ -69,19 +70,19 @@ const ChatPage = () => {
         pt="1em"
         ref={chatContainerRef}
       >
-        <ListMessages messages={messages} />
+        <ListMessages messages={dataMessages} userId={userId} />
       </Flex>
       <Box p={3} w="full">
         <InputGroup>
           <Textarea
-            value={currentMessage}
-            onChange={(e) => setCurrentMessage(e.target.value)}
+            value={textMessage}
+            onChange={handleChangeText}
             onKeyDown={handleKeyDown}
             placeholder="Write a message..."
             w="full"
             minH="40%"
             h="auto"
-            style={{ height: `${currentMessage.split("\n").length * 40}px` }}
+            style={{ height: `${textMessage.split("\n").length * 40}px` }}
           />
           <InputRightElement>
             <IconButton
