@@ -1,14 +1,8 @@
-import { ArrowBackIcon } from "@chakra-ui/icons";
 import {
   Box,
   VStack,
-  InputGroup,
-  InputRightElement,
-  IconButton,
-  Textarea,
   Flex,
   Heading,
-  Avatar,
   FormControl,
   Input,
   Button,

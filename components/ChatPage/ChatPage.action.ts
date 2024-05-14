@@ -1,8 +1,8 @@
 import { io, Socket } from "socket.io-client";
 import { useEffect, useRef, useState } from "react";
-import { IMessage } from "./ChatPage.types";
 import { useRouter } from "next/router";
 import { getCookie, setCookie } from "cookies-next";
+import { IMessage } from "@/shared/types/message";
 
 export const useChatPageAction = () => {
   const router = useRouter();

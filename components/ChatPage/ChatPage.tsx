@@ -13,10 +13,8 @@ import {
 import { useRouter } from "next/router";
 import React, { useEffect, useRef, memo } from "react";
 import { FiSend } from "react-icons/fi";
-import ReactMarkdown from "react-markdown";
-
 import { useChatPageAction } from "./ChatPage.action";
-import { IMessage } from "./ChatPage.types";
+import ListMessages from "./Partials/ListMessages";
 
 const ChatPage = () => {
   const router = useRouter();
@@ -71,45 +69,7 @@ const ChatPage = () => {
         pt="1em"
         ref={chatContainerRef}
       >
-        {messages.map((msg: IMessage, index: number) => {
-          let justify = "flex-start";
-          let bg = "orange.100";
-          if (msg.sender === "me") {
-            justify = "flex-end";
-            bg = "green.100";
-          }
-
-          // if (msg.sender === "me") {
-          //   return (
-          //     <Flex key={index} justify="flex-end">
-          //       <Box
-          //         bg="green.100"
-          //         color="black"
-          //         borderRadius="15px"
-          //         p={2}
-          //         my={1}
-          //         fontSize="sm"
-          //       >
-          //         <ReactMarkdown>{msg.text}</ReactMarkdown>
-          //       </Box>
-          //     </Flex>
-          //   );
-          // }
-          return (
-            <Flex key={index} justify={justify}>
-              <Box
-                bg={bg}
-                color="black"
-                borderRadius="15px"
-                p={2}
-                my={1}
-                fontSize="sm"
-              >
-                <ReactMarkdown>{msg.text}</ReactMarkdown>
-              </Box>
-            </Flex>
-          );
-        })}
+        <ListMessages messages={messages} />
       </Flex>
       <Box p={3} w="full">
         <InputGroup>

@@ -7,20 +7,18 @@ import {
 import {
   Box,
   VStack,
-  Text,
-  Avatar,
   Flex,
   Heading,
   IconButton,
 } from "@chakra-ui/react";
-import Link from "next/link";
-import router from "next/router";
 import React from "react";
 import { FiHome } from "react-icons/fi";
+import ListContacts from "./Partials/ListContacts";
+import { IContact } from "@/shared/types/contact";
 
-const contacts = [
-  { id: 1, name: "Alice", lastMessage: "Hi there!" },
-  { id: 2, name: "Bob", lastMessage: "How are you?" },
+const contacts: IContact[] = [
+  { id: 1, name: "Alice", lastMessage: "Hi there!", room: "123" },
+  { id: 2, name: "Bob", lastMessage: "How are you?", room: "124" },
 ];
 
 const ContactList = () => {
@@ -47,22 +45,7 @@ const ContactList = () => {
         </Flex>
       </Box>
       <Box pt={20}>
-        {contacts.map((contact) => (
-          <Link href="/chat/123" key={contact.id}>
-            <Box
-              p={4}
-              shadow="md"
-              display="flex"
-              alignItems="center"
-              fontSize="sm"
-            >
-              <Avatar name={contact.name} mr={5} />
-              <Text fontWeight="bold" mr={5}>
-                {contact.name}
-              </Text>
-            </Box>
-          </Link>
-        ))}
+        <ListContacts contacts={contacts} />
       </Box>
       <Box
         bg="green.400"
