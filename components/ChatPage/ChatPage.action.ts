@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { getCookie, setCookie } from "cookies-next";
+import { getCookie } from "cookies-next";
 import { IMessage } from "@/shared/types/message";
 import useWebSocket from "react-use-websocket";
+import { configEnv } from "@/shared/env";
 
 export const useChatPageAction = () => {
   const router = useRouter();
@@ -11,27 +12,29 @@ export const useChatPageAction = () => {
 
   const [dataMessages, setDataMessages] = useState<IMessage[]>([]);
   const [textMessage, setTextMessage] = useState<string>("");
+
   const { sendJsonMessage, lastMessage, readyState } = useWebSocket(
-    "ws://localhost:8080",
+    configEnv.websocketHost,
     {
       onOpen: () => console.log("WS-Stream connected."),
       onClose: () => console.log("WS-Stream disconnected."),
       shouldReconnect: () => true,
-      onMessage: (event: WebSocketEventMap["message"]) =>
-        console.log(event.data),
+      onMessage: (event: WebSocketEventMap["message"]) => {
+        if (!configEnv.isProduction) {
+          console.log(event.data);
+        }
+      },
     },
   );
 
-  const handleJoinRoom = () => {
-    if (readyState > 0) {
-      sendJsonMessage({
-        event: "joinRoom",
-        data: {
-          room: String(room),
-        },
-      });
-      setTextMessage("");
-    }
+  const handleJoinRoom = (roomName: string) => {
+    sendJsonMessage({
+      event: "joinRoom",
+      data: {
+        room: roomName,
+      },
+    });
+    setTextMessage("");
   };
 
   const handleChangeText = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -83,10 +86,11 @@ export const useChatPageAction = () => {
   }, [userId]);
 
   useEffect(() => {
-    if (!room) {
+    const roomName = String(room);
+    if (!roomName) {
       return;
     } else {
-      handleJoinRoom();
+      handleJoinRoom(roomName);
     }
   }, [room]);
 
