@@ -10,7 +10,9 @@ The project utilizes `Next.js` for the frontend and WebSocket for real-time WebS
 
 - [Introduction](#introduction)
 - [Features](#features)
-- [Installation](#installation)
+- [Requirements](#requirements)
+- [Steps](#steps)
+- [Backend](#backend)
 - [License](#license)
 
 ## Features
@@ -25,8 +27,35 @@ Ensure you have the following installed:
 
 - [Node.js](https://nodejs.org/en/) (version 12 or higher)
 - [npm](https://www.npmjs.com/)
+- yarn version v1.22.21
 
+## Steps
+
+### Install dependencies
+
+- `yarn install`
+
+### Run in development
+
+- `yarn dev`
+
+### Formatting Code
+
+- `yarn format`
+
+### Build
+
+- `yarn build`
+
+### Run in Production
+
+- `NODE_ENV=production yarn start`
+
+## Backend
+
+[NodeJS Chat](https://github.com/yudapc/nodejs-chat)
 
 ## License
 
 This project is licensed under the MIT License.
+
